@@ -39,6 +39,7 @@
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
+#include "nin.h"
 
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
@@ -1085,6 +1086,7 @@ keypress(XEvent *e) {
 
 	ev = &e->xkey;
 	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
+	NIN_DBG("keypress event:: xkey: %.8X keysym: %.8X\n", e->xkey, keysym);
 	for(i = 0; i < LENGTH(keys); i++)
 		if(keysym == keys[i].keysym
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
@@ -1441,8 +1443,11 @@ run(void) {
 	/* main event loop */
 	XSync(dpy, False);
 	while(running && !XNextEvent(dpy, &ev))
+	{
+		NIN_DBG("received event: %.8X\n", ev.type);
 		if(handler[ev.type])
 			handler[ev.type](&ev); /* call handler */
+	}
 }
 
 void
